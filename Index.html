@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ค้นหาข้อมูลสายรถ</title>
+    <style>
+        /* ปรับการแสดงผลให้คอลัมน์อื่นๆ ยังคงอยู่กลาง */
+        th, td {
+            text-align: center;
+        }
+
+        /* ปรับให้ชื่อร้าน (name) อยู่ทางซ้าย */
+        td.name, th.name {
+            text-align: left;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>ค้นหาข้อมูลสายรถ</h1>
+    <input type="text" id="routeInput" placeholder="กรอกสายรถ (6 หลัก)">
+    <button onclick="searchRoute()">ค้นหา</button>
+    <table border="1" id="resultTable">
+        <thead>
+            <tr>
+                <th>สายรถ</th>
+                <th>รหัสร้าน</th>
+                <th class="name">ชื่อร้าน</th>
+                <th>ลำดับ</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+    <script>
+        const data = [
+        { route: "401004", code: "3015879", name: "สาขา PTTOR บางบอน5 (หนองแขม)", order: 1 },
+{ route: "401004", code: "3020601", name: "สาขา เอกชัย 119", order: 2 },
+{ route: "401004", code: "3019575", name: "สาขา บางบอน 5 ซอย 3", order: 3 },
+{ route: "401004", code: "3019113", name: "สาขา กองกำกับการม้าตำรวจ (PTTOR)", order: 4 },
+{ route: "401004", code: "3017502", name: "สาขา บางบอน5 ซอย5", order: 5 },
+{ route: "401004", code: "3017503", name: "สาขา เลียบฯใต้ซอย5(ตะวันทอง3)", order: 6 },
+{ route: "401004", code: "3007583", name: "สาขา บางบอนวิลล์", order: 7 },
+{ route: "401004", code: "3011403", name: "สาขา บางบอน 4", order: 8 },
+{ route: "401004", code: "3010439", name: "สาขา ปตท.LPG บางบอน 5", order: 9 },
+{ route: "401004", code: "3002211", name: "สาขา จัสโก้บางบอน", order: 10 },
+{ route: "401004", code: "3006960", name: "สาขา สามแยกนเรศวร", order: 11 },
+{ route: "401004", code: "3013003", name: "สาขา เอกชัย 126", order: 12 },
+{ route: "401004", code: "3019101", name: "สาขา เอกชัย 132", order: 13 },
+{ route: "401004", code: "3018163", name: "สาขา บางบอน 5 ซ. 18", order: 14 },
+{ route: "401004", code: "3018753", name: "สาขา บางบอน 4 ซอยประสิทธิ์", order: 15 },
+{ route: "401004", code: "3016346", name: "สาขา บางบอน 4 ซอย 1", order: 16 },
+{ route: "401004", code: "3013631", name: "สาขา บางบอน 5 ตะวันฉาย", order: 17 },
+{ route: "401004", code: "3005845", name: "สาขา บางบอน 4 ซอย 14", order: 18 },
+{ route: "401004", code: "3013736", name: "สาขา บางบอน5ซอย1", order: 19 },
+{ route: "401005", code: "3002493", name: "สาขา สุขุมวิท 93(พึ่งมี 50)", order: 1 },
+{ route: "401005", code: "3015793", name: "สาขา สุขุมวิท 93 (พึ่งมี1)", order: 2 },
+{ route: "401005", code: "3014622", name: "สาขา IDEO สุขุมวิท 93", order: 3 },
+{ route: "401005", code: "3005613", name: "สาขา สุขุมวิท 79", order: 4 },
+{ route: "401005", code: "3010006", name: "สาขา สุขุมวิท 93 จุด 2", order: 5 },
+{ route: "401005", code: "3019795", name: "สาขา IDEO Mobi สุขุมวิท 81", order: 6 },
+{ route: "401005", code: "3019273", name: "สาขา สุขุมวิท 97/1 จุด 1", order: 7 },
+{ route: "401005", code: "3009735", name: "สาขา ยูดีไลท์แอทอ่อนนุช", order: 8 },
+{ route: "401005", code: "3011947", name: "สาขา สุขุมวิท 97 (Gecko)", order: 9 },
+{ route: "401005", code: "3011965", name: "สาขา สุขุมวิท 81 (Pesidence Condo)", order: 10 },
+{ route: "401005", code: "3009567", name: "สาขา LPN สุขุมวิท 77", order: 11 },
+{ route: "401005", code: "3005397", name: "สาขา The base สุขุมวิท 77", order: 12 },
+{ route: "401005", code: "3017374", name: "สาขา สุขุมวิท 93 พึ่งมี 11", order: 13 },
+{ route: "401005", code: "3006894", name: "สาขา กลางซอยสุขุมวิท 81", order: 14 },
+{ route: "401005", code: "3014509", name: "สาขา สุขุมวิท 93 (จุด 3)", order: 15 },
+{ route: "401005", code: "3018678", name: "สาขา สุขุมวิท 81 (จุด 2)", order: 16 },
+{ route: "401005", code: "3007090", name: "สาขา สุขุมวิท 95 จุด 2", order: 17 },
+{ route: "401005", code: "3009405", name: "สาขา ปากซอยสุขุมวิท 93", order: 18 },
+{ route: "401005", code: "3005250", name: "สาขา LPN สุขุมวิท 77 โครงการ 2", order: 19 },
+{ route: "401005", code: "3015936", name: "สาขา สุขุมวิท 97/1", order: 20 },
+{ route: "401005", code: "3003670", name: "สาขา นิรันดร์คอนโด (สุขุมวิท 93)", order: 21 },
+{ route: "401007", code: "3007421", name: "สาขา ประชาอุทิศ 17", order: 1 },
+{ route: "401007", code: "3002997", name: "สาขา ประชาอุทิศ 6", order: 2 },
+{ route: "401007", code: "3016847", name: "สาขา หมู่บ้านพลีโน (สุขสวัสดิ์ 70)", order: 3 },
+{ route: "401007", code: "3017538", name: "สาขา หมู่บ้าน AP Centro (ประชาอุทิศ", order: 4 },
+{ route: "401007", code: "3017621", name: "สาขา ลัลลี่วิลล์ ประชาอุทิศ 72", order: 5 },
+{ route: "401007", code: "3015760", name: "สาขา ประชาอุทิศ 69 กลางซอย", order: 6 },
+{ route: "401007", code: "3018758", name: "สาขา ประชาอุทิศ 66", order: 7 },
+{ route: "401007", code: "3009087", name: "สาขา ประชาอุทิศ 27 จุด 2", order: 8 },
+{ route: "401007", code: "3008158", name: "สาขา ประชาอุทิศ 27 แยก 6", order: 9 },
+{ route: "401007", code: "3008179", name: "สาขา  ประชาอุทิศ 103", order: 10 },
+{ route: "401007", code: "3013298", name: "สาขา ประชาอุทิศ 113", order: 11 },
+{ route: "401007", code: "3007650", name: "สาขา ประชาอุทิศ 28", order: 12 },
+{ route: "401007", code: "3015658", name: "สาขา สุขสวัสดิ์ 70 ซอย 7", order: 13 },
+{ route: "401007", code: "3009831", name: "สาขา ประชาอุทิศ 58/2", order: 14 },
+{ route: "401007", code: "3003351", name: "สาขา ประชาอุทิศ-91", order: 15 },
+{ route: "401007", code: "3019831", name: "สาขา ประชาอุทิศ 32", order: 16 },
+{ route: "401007", code: "3014809", name: "สาขา หมู่บ้านมัณฑนา(ประชาอุทิศ 72)", order: 17 },
+{ route: "401007", code: "3003553", name: "สาขา ประชาอุทิศ 72", order: 18 },
+{ route: "401008", code: "3006352", name: "สาขา ชุมชนราชวรินทร์", order: 1 },
+{ route: "401008", code: "3020382", name: "สาขา ชุมชนวัดทองธรรมชาติ", order: 2 },
+{ route: "401008", code: "3010634", name: "สาขา ท่าดินแดง ซอย 5", order: 3 },
+{ route: "401008", code: "3000992", name: "สาขา ตลาดสำเหร่", order: 4 },
+{ route: "401008", code: "3000227", name: "สาขา เจริญรัถ", order: 5 },
+{ route: "401008", code: "3011990", name: "สาขา ตากสิน 23", order: 6 },
+{ route: "401008", code: "3002456", name: "สาขา เจริญรัถ 30", order: 7 },
+{ route: "401008", code: "3000067", name: "สาขา คลองสาน", order: 8 },
+{ route: "401008", code: "3002908", name: "สาขา เจ้าพระยา 11", order: 9 },
+{ route: "401008", code: "3004906", name: "สาขา ท่าดินแดง ซอย 14", order: 10 },
+{ route: "401008", code: "3012139", name: "สาขา ท่าดินแดงซอย 9", order: 11 },
+{ route: "401008", code: "3001500", name: "สาขา ตากสิน11", order: 12 },
+{ route: "401008", code: "3013086", name: "สาขา ท่าดินแดง 15", order: 13 },
+{ route: "401008", code: "3018891", name: "สาขา ตลาดสะพานคู่(พญาไม้)", order: 14 },
+{ route: "401009", code: "3009096", name: "สาขา  ไผ่ทอง", order: 1 },
+{ route: "401009", code: "3016610", name: "สาขา เอกชัย 109", order: 2 },
+{ route: "401009", code: "3008033", name: "สาขา ตลาดเพชรสยาม 3", order: 3 },
+{ route: "401009", code: "3007435", name: "สาขา หมู่บ้านเพชรสยาม 3", order: 4 },
+{ route: "401009", code: "3014416", name: "สาขา พระปิ่น 5 ซอยรางโพธิ์", order: 5 },
+{ route: "401009", code: "3014511", name: "สาขา เจ้าสัว 69 คอมเพล็ก", order: 6 },
+{ route: "401009", code: "3006220", name: "สาขา กาญจนาภิเษก 4", order: 7 },
+{ route: "401009", code: "3016009", name: "สาขา สามแยกร่มไทร", order: 8 },
+{ route: "401009", code: "3014918", name: "สาขา กาญจนาภิเษก3แยก1(ม.ชัยพฤกษ์)", order: 9 },
+{ route: "401009", code: "3016058", name: "สาขา มั่งมีแสนสุข-กัลปพฤกษ์ 2", order: 10 },
+{ route: "401009", code: "3015541", name: "สาขา PTTOR กาญจนาภิเษก-บางบอน", order: 11 },
+{ route: "401009", code: "3017917", name: "สาขา ถนนพรหมราษฎร์รังสรรค์", order: 12 },
+{ route: "401009", code: "3019017", name: "สาขา เลียบฯใต้หนองแขม", order: 13 },
+{ route: "401009", code: "3006219", name: "สาขา ตะวันทอง", order: 14 },
+{ route: "401009", code: "3018642", name: "สาขา เลียบฯ ใต้-เพชรเกษม 69", order: 15 },
+{ route: "401009", code: "3008434", name: "สาขา กาญจนาภิเษก 6 (ม.เอสเค)", order: 16 },
+{ route: "401009", code: "3011157", name: "สาขา บางบอน 3 ซอย 1", order: 17 },
+{ route: "401009", code: "3007912", name: "สาขา พระปิ่น 5 ซอย 17", order: 18 },
+{ route: "401009", code: "3007428", name: "สาขา เอกชัย 131", order: 19 },
+{ route: "401009", code: "3013737", name: "สาขา สารสาสน์ บางบอน3", order: 20 },
+
+        ];
+
+        function searchRoute() {
+            const input = document.getElementById('routeInput').value;
+            const resultTable = document.getElementById('resultTable').getElementsByTagName('tbody')[0];
+            resultTable.innerHTML = '';
+
+            const results = data.filter(item => item.route === input);
+            if (results.length > 0) {
+                results.forEach(row => {
+                    const newRow = resultTable.insertRow();
+                    newRow.innerHTML = `<td>${row.route}</td><td>${row.code}</td><td class="name">${row.name}</td><td>${row.order}</td>`;
+                });
+            } else {
+                alert('ไม่พบข้อมูล');
+            }
+        }
+    </script>
+</body>
+</html>
